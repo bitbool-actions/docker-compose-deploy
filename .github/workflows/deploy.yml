@@ -5,17 +5,22 @@ on:
     inputs:
       DOCKER_REPOSITORY:
          required: true
+         type: string
       DOCKER_REGISTRY: 
         required: true
+        type: string
       DOCKER_USER:
         required: false
         default: "builder"
+        type: string
       QEMU_SETUP:
         required: false
         default: "false"
+        type: string
       DEPLOY_URL: 
         required: false
         default: "INVALID"        
+        type: string
     secrets:
       DOCKER_PASSWORD:
         required: true
