@@ -3,6 +3,8 @@ description: "build and push docker image"
 inputs: 
   IMAGES:
      required: true
+  AUTH_TOKEN:
+     required: true
   DEPLOY_URL: 
     required: true
   USE_PULL_REPO:
@@ -12,19 +14,38 @@ runs:
   using: "composite"
   steps:
 
-    - name: change to pull repos
-      shell: bash
-      run:  |
-        echo "PULL_IMAGES=$(echo '${{ steps.docker_build.outputs.images }}' | sed 's/([^.]*)/\1-pull/')" >> $GITHUB_ENV
-      if: ${{ inputs.USE_PULL_REPO == 'true' }}
+    # - name: change to pull repos
+    #   shell: bash
+    #   run:  |
+    #     echo "PULL_IMAGES=$(echo '${{ steps.docker_build.outputs.images }}' | sed 's/([^.]*)/\1-pull/')" >> $GITHUB_ENV
+    #   if: ${{ inputs.USE_PULL_REPO == 'true' }}
+
+    # - name: change to pull repos
+    #   shell: bash
+    #   run:  echo "PULL_IMAGES=${{ steps.docker_build.outputs.images }}" >> $GITHUB_ENV
+    #   if: ${{ inputs.USE_PULL_REPO == 'false' }}
+
+    # - name: deploy
+    #   shell: bash
+    #   run:  |
+    #     curl -H 'X-Authorization: ${{ secrets.AUTH_TOKEN }}' -H 'X-Deploy-Tags: ${{ env.PULL_IMAGES }}' ${{ inputs.DEPLOY_URL }} 
+
 
     - name: change to pull repos
       shell: bash
-      run:  echo "PULL_IMAGES=${{ steps.docker_build.outputs.images }}" >> $GITHUB_ENV
-      if: ${{ inputs.USE_PULL_REPO == 'false' }}
+      id: set_pull_repos
+      run:  |
+        echo "::set-output name=images::$(echo '${{ inputs.IMAGES }}' | sed 's/^\([^.]*\)/\1-pull/')"
+      if: ${{ inputs.USE_PULL_REPO == 'true' }}
+
+    - name: deploy from pull repos
+      shell: bash
+      run:  |
+        curl -H 'X-Authorization: ${{ inputs.AUTH_TOKEN }}' -H "X-Deploy-Tags: ${{ steps.set_pull_repos.outputs.images }}" ${{ inputs.DEPLOY_URL }} 
+      if: ${{ inputs.DEPLOY_URL != 'INVALID' && inputs.USE_PULL_REPO == 'true' }}
 
     - name: deploy
       shell: bash
       run:  |
-        curl -H 'X-Authorization: ${{ secrets.AUTH_TOKEN }}' -H 'X-Deploy-Tags: ${{ env.PULL_IMAGES }}' ${{ inputs.DEPLOY_URL }} 
-
+        curl -H 'X-Authorization: ${{ inputs.AUTH_TOKEN }}' -H 'X-Deploy-Tags: ${{ inputs.IMAGES}}' ${{ inputs.DEPLOY_URL }} 
+      if: ${{ inputs.DEPLOY_URL != 'INVALID' && inputs.USE_PULL_REPO == 'false' }}
