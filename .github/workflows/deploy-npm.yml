@@ -60,12 +60,12 @@ jobs:
       - name: change to pull repos
         shell: bash
         run:  |
-          echo "PULL_IMAGES=$(echo '${{ steps.docker_build.outputs.images }}' | sed 's/([^.]*)/\1-pull/'" >> $GITHUB_ENV
+          echo "PULL_IMAGES=$(echo '${{ steps.docker_build.outputs.images }}' | sed 's/([^.]*)/\1-pull/')" >> $GITHUB_ENV
         if: ${{ inputs.USE_PULL_REPO == 'true' }}
 
       - name: change to pull repos
         shell: bash
-        run:  echo PULL_IMAGES="${{ steps.docker_build.outputs.images }}" >> $GITHUB_ENV
+        run:  echo "PULL_IMAGES=${{ steps.docker_build.outputs.images }}" >> $GITHUB_ENV
         if: ${{ inputs.USE_PULL_REPO == 'false' }}
 
       - name: deploy
