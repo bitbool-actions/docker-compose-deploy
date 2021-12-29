@@ -1,0 +1,49 @@
+name: build and deploy
+
+on:
+  workflow_call:
+    inputs:
+      DOCKER_REPOSITORY:
+         required: true
+      DOCKER_REGISTRY: 
+        required: true
+      DOCKER_USER:
+        required: false
+        default: "builder"
+      QEMU_SETUP:
+        required: false
+        default: "false"
+      DEPLOY_URL: 
+        required: false
+        default: "INVALID"        
+    secrets:
+      DOCKER_PASSWORD:
+        required: true
+      AUTH_TOKEN:
+        required: false
+
+jobs:
+  build:
+    concurrency: 
+      group: ${{ github.ref }}
+      cancel-in-progress: true
+    runs-on: [self-hosted]
+    
+    steps:
+
+      - uses: actions/checkout@v2
+
+      - uses: athenarc/actions-docker-build-push@master
+        id: docker_build
+        with:
+          DOCKER_REGISTRY: "${{env.DOCKER_REGISTRY }}"
+          DOCKER_REPO: "${{ env.DOCKER_REPO }}"
+          QEMU_SETUP: "${{ inputs.QEMU_SETUP }}"
+          DOCKER_USER: "${{ inputs.DOCKER_USER }}"
+
+    - name: deploy
+      shell: bash
+      run:  |
+        curl -H 'X-Authorization: ${{ secrets.AUTH_TOKEN }}' -H 'X-Deploy-Tags: ${{ inputs.IMAGES }}' ${{ inputs.DEPLOY_URL }} 
+      if: ${{ inputs.DEPLOY_URL == "INVALID"}}
+
