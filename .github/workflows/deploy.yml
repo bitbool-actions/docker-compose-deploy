@@ -42,14 +42,16 @@ jobs:
       - uses: athenarc/actions-docker-build-push@master
         id: docker_build
         with:
-          DOCKER_REGISTRY: "${{env.DOCKER_REGISTRY }}"
-          DOCKER_REPO: "${{ env.DOCKER_REPO }}"
+          DOCKER_REGISTRY: "${{ inputs.DOCKER_REGISTRY }}"
+          DOCKER_REPO: "${{ inputs.DOCKER_REPO }}"
           QEMU_SETUP: "${{ inputs.QEMU_SETUP }}"
           DOCKER_USER: "${{ inputs.DOCKER_USER }}"
+          DOCKER_PASSWORD: "${{ secrets.DOCKER_PASSWORD }}"
+
 
       - name: deploy
         shell: bash
         run:  |
-          curl -H 'X-Authorization: ${{ secrets.AUTH_TOKEN }}' -H 'X-Deploy-Tags: ${{ inputs.IMAGES }}' ${{ inputs.DEPLOY_URL }} 
-        if: ${{ inputs.DEPLOY_URL == 'INVALID' }}
+          curl -H 'X-Authorization: ${{ secrets.AUTH_TOKEN }}' -H 'X-Deploy-Tags: ${{ steps.docker_build.outputs.images }}' ${{ inputs.DEPLOY_URL }} 
+        if: ${{ inputs.DEPLOY_URL != 'INVALID' }}
 
