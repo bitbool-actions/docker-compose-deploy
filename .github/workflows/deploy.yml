@@ -3,7 +3,7 @@ name: build and deploy
 on:
   workflow_call:
     inputs:
-      DOCKER_REPOSITORY:
+      DOCKER_REPO:
          required: true
          type: string
       DOCKER_REGISTRY: 
