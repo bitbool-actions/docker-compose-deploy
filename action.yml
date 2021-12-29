@@ -5,6 +5,9 @@ inputs:
      required: true
   DEPLOY_URL: 
     required: true
+  USE_PULL_REPO:
+    required: false
+    default: "true"
 runs:
   using: "composite"
   steps:
