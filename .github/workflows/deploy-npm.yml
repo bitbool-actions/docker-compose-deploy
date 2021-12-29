@@ -57,15 +57,19 @@ jobs:
           DOCKER_USER: "${{ inputs.DOCKER_USER }}"
           DOCKER_PASSWORD: "${{ secrets.DOCKER_PASSWORD }}"
 
+      - name: change to pull repos
+        shell: bash
+        run:  echo "PULL_IMAGES=$(echo '${{ steps.docker_build.outputs.images }}' | sed 's/([^.]*)/\1-pull/'" >> $GITHUB_ENV
+        if: ${{ inputs.USE_PULL_REPO == 'true' }}
+
+      - name: change to pull repos
+        shell: bash
+        run:  echo PULL_IMAGES="${{ steps.docker_build.outputs.images }}" >> $GITHUB_ENV
+        if: ${{ inputs.USE_PULL_REPO == 'false' }}
 
       - name: deploy
         shell: bash
         run:  |
-          curl -H 'X-Authorization: ${{ secrets.AUTH_TOKEN }}' -H "X-Deploy-Tags: $(echo ${{ steps.docker_build.outputs.images }} | sed 's/([^.]*)/\1-pull/')" ${{ inputs.DEPLOY_URL }} 
-        if: ${{ inputs.DEPLOY_URL != 'INVALID' && inputs.USE_PULL_REPO == 'true' }}
+          curl -H 'X-Authorization: ${{ secrets.AUTH_TOKEN }}' -H 'X-Deploy-Tags: ${{ env.PULL_IMAGES }}' ${{ inputs.DEPLOY_URL }} 
+        if: ${{ inputs.DEPLOY_URL != 'INVALID' }}
 
-      - name: deploy
-        shell: bash
-        run:  |
-          curl -H 'X-Authorization: ${{ secrets.AUTH_TOKEN }}' -H 'X-Deploy-Tags: ${{ steps.docker_build.outputs.images }}' ${{ inputs.DEPLOY_URL }} 
-        if: ${{ inputs.DEPLOY_URL != 'INVALID' && inputs.USE_PULL_REPO == 'false' }}
