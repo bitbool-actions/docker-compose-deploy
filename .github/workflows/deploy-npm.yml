@@ -24,7 +24,11 @@ on:
       USE_PULL_REPO:
         required: false
         type: string        
-        default: "true"        
+        default: "true"
+      USE_YARN: 
+        required: false
+        type: string        
+        default: "true"
     secrets:
       DOCKER_PASSWORD:
         required: true
