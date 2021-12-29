@@ -39,6 +39,11 @@ jobs:
 
       - uses: actions/checkout@v2
 
+      - name: build
+        shell: bash
+        run:  |
+          mkdir build
+
       - uses: athenarc/actions-docker-build-push@master
         id: docker_build
         with:
