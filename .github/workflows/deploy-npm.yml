@@ -61,7 +61,7 @@ jobs:
         shell: bash
         id: set_pull_repos
         run:  |
-          echo "::set-output name=IMAGES::$(echo '${{ steps.docker_build.outputs.images }}' | sed 's/([^.]*)/\1-pull/')"
+          echo "::set-output name=images::$(echo '${{ steps.docker_build.outputs.images }}' | sed 's/([^.]*)/\1-pull/')"
         if: ${{ inputs.USE_PULL_REPO == 'true' }}
 
       - name: deploy
