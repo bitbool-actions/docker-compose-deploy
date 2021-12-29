@@ -23,7 +23,8 @@ on:
         required: false
 
 jobs:
-  build:
+  docker_build:
+    name: "build docker image and deploy"
     concurrency: 
       group: ${{ github.ref }}
       cancel-in-progress: true
@@ -41,9 +42,9 @@ jobs:
           QEMU_SETUP: "${{ inputs.QEMU_SETUP }}"
           DOCKER_USER: "${{ inputs.DOCKER_USER }}"
 
-    - name: deploy
-      shell: bash
-      run:  |
-        curl -H 'X-Authorization: ${{ secrets.AUTH_TOKEN }}' -H 'X-Deploy-Tags: ${{ inputs.IMAGES }}' ${{ inputs.DEPLOY_URL }} 
-      if: ${{ inputs.DEPLOY_URL == "INVALID"}}
+      - name: deploy
+        shell: bash
+        run:  |
+          curl -H 'X-Authorization: ${{ secrets.AUTH_TOKEN }}' -H 'X-Deploy-Tags: ${{ inputs.IMAGES }}' ${{ inputs.DEPLOY_URL }} 
+        if: ${{ inputs.DEPLOY_URL == "INVALID"}}
 
