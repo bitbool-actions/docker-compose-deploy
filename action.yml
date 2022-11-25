@@ -41,11 +41,11 @@ runs:
     - name: deploy from pull repos
       shell: bash
       run:  |
-        curl -H 'X-Authorization: ${{ inputs.AUTH_TOKEN }}' -H "X-Deploy-Tags: ${{ steps.set_pull_repos.outputs.images }}" ${{ inputs.DEPLOY_URL }} 
+        curl -f -H 'X-Authorization: ${{ inputs.AUTH_TOKEN }}' -H "X-Deploy-Tags: ${{ steps.set_pull_repos.outputs.images }}" ${{ inputs.DEPLOY_URL }} 
       if: ${{ inputs.DEPLOY_URL != 'INVALID' && inputs.USE_PULL_REPO == 'true' }}
 
     - name: deploy
       shell: bash
       run:  |
-        curl -H 'X-Authorization: ${{ inputs.AUTH_TOKEN }}' -H 'X-Deploy-Tags: ${{ inputs.IMAGES}}' ${{ inputs.DEPLOY_URL }} 
+        curl -f -H 'X-Authorization: ${{ inputs.AUTH_TOKEN }}' -H 'X-Deploy-Tags: ${{ inputs.IMAGES}}' ${{ inputs.DEPLOY_URL }} 
       if: ${{ inputs.DEPLOY_URL != 'INVALID' && inputs.USE_PULL_REPO == 'false' }}
