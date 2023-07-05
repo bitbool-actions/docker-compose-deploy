@@ -1,5 +1,5 @@
-name: "docker-build-push"
-description: "build and push docker image"
+name: "docker compose deploy"
+description: "build using docker-compose-deploy tool"
 inputs: 
   IMAGES:
      required: true
