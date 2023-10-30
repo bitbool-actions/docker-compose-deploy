@@ -38,6 +38,12 @@ runs:
         echo "images=$(echo '${{ inputs.IMAGES }}' | sed 's/\(^\| \)\([^.]*\)/ \2-pull/g')" >> $GITHUB_OUTPUT
       if: ${{ inputs.USE_PULL_REPO == 'true' }}
 
+    - name: check invalid url
+      shell: bash
+      run:  |
+        echo url is invalid: ${{ inputs.DEPLOY_URL }}
+      if: ${{ inputs.DEPLOY_URL == 'INVALID' }}
+      
     - name: deploy from pull repos
       shell: bash
       run:  |
