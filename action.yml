@@ -7,9 +7,21 @@ inputs:
      required: true
   DEPLOY_URL: 
     required: true
-  USE_PULL_REPO:
+  DEPLOY_VERIFY:
     required: false
     default: "true"
+  DEPLOY_COMPOSE_PULL:
+    required: false
+    default: "true"
+  DEPLOY_COMPOSE_UP:
+    required: false
+    default: "true"
+  DEPLOY_COMPOSE_ENVVARTAG:
+    required: false
+    default: ""
+  USE_PULL_REPO:
+    required: false
+    default: "false"
 runs:
   using: "composite"
   steps:
@@ -44,14 +56,30 @@ runs:
         echo url is invalid: ${{ inputs.DEPLOY_URL }}
       if: ${{ inputs.DEPLOY_URL == 'INVALID' }}
       
+    - name: create deployment ID
+      shell: bash
+      id: create_deploy_id
+      run:  |
+        echo "deploy_id=${{ github.repository_id }}_${{ github.run_id }}_${{ github.run_attempt	}}" >> $GITHUB_OUTPUT
+
     - name: deploy from pull repos
       shell: bash
       run:  |
-        curl -f -H 'X-Authorization: ${{ inputs.AUTH_TOKEN }}' -H "X-Deploy-Tags: ${{ steps.set_pull_repos.outputs.images }}" ${{ inputs.DEPLOY_URL }} 
+        curl -f -H 'X-Authorization: ${{ inputs.AUTH_TOKEN }}' -H "X-Deploy-Tags: ${{ steps.set_pull_repos.outputs.images }}" -H "X-Deploy-Id: ${{ steps.create_deploy_id.outputs.deploy_id }}" ${{ inputs.DEPLOY_URL }} 
       if: ${{ inputs.DEPLOY_URL != 'INVALID' && inputs.USE_PULL_REPO == 'true' }}
 
     - name: deploy
       shell: bash
       run:  |
-        curl -f -H 'X-Authorization: ${{ inputs.AUTH_TOKEN }}' -H 'X-Deploy-Tags: ${{ inputs.IMAGES}}' ${{ inputs.DEPLOY_URL }} 
+        curl -f -H 'X-Authorization: ${{ inputs.AUTH_TOKEN }}' -H 'X-Deploy-Tags: ${{ inputs.IMAGES}}' -H 'X-Deploy-Id: ${{ steps.create_deploy_id.outputs.deploy_id }}' -H 'X-Deploy-ComposePull: ${{ inputs.DEPLOY_COMPOSE_PULL}}' -H 'X-Deploy-ComposeUp: ${{ inputs.DEPLOY_COMPOSE_UP}}' -H 'X-Deploy-ComposeEnvVarTag: ${{ inputs.DEPLOY_COMPOSE_ENVVARTAG}}' ${{ inputs.DEPLOY_URL }}
       if: ${{ inputs.DEPLOY_URL != 'INVALID' && inputs.USE_PULL_REPO == 'false' }}
+
+    - name: verify deployment
+      shell: bash
+      run:  |
+        curl -f -H 'X-Authorization: ${{ inputs.AUTH_TOKEN }}' -H "X-Deploy-Id: ${{ steps.create_deploy_id.outputs.deploy_id }}" ${{ inputs.DEPLOY_URL }}-verify
+      if: ${{ inputs.DEPLOY_VERIFY == 'true' }}
+
+
+
+
