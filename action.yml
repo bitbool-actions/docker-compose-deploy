@@ -21,7 +21,7 @@ inputs:
     default: ""
   USE_PULL_REPO:
     required: false
-    default: "false"
+    default: "true"
 runs:
   using: "composite"
   steps:
@@ -65,7 +65,7 @@ runs:
     - name: deploy from pull repos
       shell: bash
       run:  |
-        curl -f -H 'X-Authorization: ${{ inputs.AUTH_TOKEN }}' -H "X-Deploy-Tags: ${{ steps.set_pull_repos.outputs.images }}" -H "X-Deploy-Id: ${{ steps.create_deploy_id.outputs.deploy_id }}" ${{ inputs.DEPLOY_URL }} 
+        curl -f -H 'X-Authorization: ${{ inputs.AUTH_TOKEN }}' -H "X-Deploy-Tags: ${{ steps.set_pull_repos.outputs.images }}" -H 'X-Deploy-Id: ${{ steps.create_deploy_id.outputs.deploy_id }}' -H 'X-Deploy-ComposePull: ${{ inputs.DEPLOY_COMPOSE_PULL}}' -H 'X-Deploy-ComposeUp: ${{ inputs.DEPLOY_COMPOSE_UP}}' -H 'X-Deploy-ComposeEnvVarTag: ${{ inputs.DEPLOY_COMPOSE_ENVVARTAG}}' ${{ inputs.DEPLOY_URL }}
       if: ${{ inputs.DEPLOY_URL != 'INVALID' && inputs.USE_PULL_REPO == 'true' }}
 
     - name: deploy
