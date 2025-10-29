@@ -72,7 +72,7 @@ runs:
     - name: deploy
       shell: bash
       run:  |
-        curl -f -H 'X-Authorization: ${{ inputs.AUTH_TOKEN }}' -H 'X-Deploy-Tags: $(echo ${{ inputs.IMAGES}} | xargs)' -H 'X-Deploy-Id: ${{ steps.create_deploy_id.outputs.deploy_id }}' -H 'X-Deploy-ComposePull: ${{ inputs.DEPLOY_COMPOSE_PULL}}' -H 'X-Deploy-ComposeUp: ${{ inputs.DEPLOY_COMPOSE_UP}}' -H 'X-Deploy-ComposeEnvVarTag: ${{ inputs.DEPLOY_COMPOSE_ENVVARTAG}}' ${{ inputs.DEPLOY_URL }}
+        curl -f -H 'X-Authorization: ${{ inputs.AUTH_TOKEN }}' -H "X-Deploy-Tags: $(echo ${{ inputs.IMAGES}} | xargs)" -H 'X-Deploy-Id: ${{ steps.create_deploy_id.outputs.deploy_id }}' -H 'X-Deploy-ComposePull: ${{ inputs.DEPLOY_COMPOSE_PULL}}' -H 'X-Deploy-ComposeUp: ${{ inputs.DEPLOY_COMPOSE_UP}}' -H 'X-Deploy-ComposeEnvVarTag: ${{ inputs.DEPLOY_COMPOSE_ENVVARTAG}}' ${{ inputs.DEPLOY_URL }}
       if: ${{ inputs.DEPLOY_URL != 'INVALID' && inputs.USE_PULL_REPO == 'false' }}
 
     - name: verify deployment
